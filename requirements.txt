@@ -1,0 +1,6 @@
+numpy
+cupy-cuda118 # Optional, for GPU acceleration
+PyQt5
+matplotlib
+opencv-python
+scikit-image
