@@ -17,6 +17,7 @@ import sys
 import os
 import json
 import numpy as np
+import psutil  # For memory checks
 
 # Try to import CuPy; if unavailable, use NumPy as a substitute
 try:
@@ -43,6 +44,7 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import cv2  # For image I/O
 from skimage.feature import peak_local_max  # For peak detection
+import threading  # For thread safety
 
 # Main Application Class
 class FFTImageProcessingApp(QtWidgets.QMainWindow):
@@ -58,6 +60,7 @@ class FFTImageProcessingApp(QtWidgets.QMainWindow):
         self.hovered_slider = None  # For slider hover events
         self.unsaved_changes = False  # Track unsaved changes
         self.show_original = False  # Toggle for before/after
+        self.processing_lock = threading.Lock()  # For thread safety
 
         # GUI components
         self.init_ui()
@@ -271,7 +274,7 @@ class FFTImageProcessingApp(QtWidgets.QMainWindow):
         sld, min_val, max_val = self.sliders[label]
         if max_val - min_val == 0:
             return min_val
-        value = sld.value() / sld.maximum() * (max_val - min_val) + min_val
+        value = sld.value() / max(sld.maximum(), 1) * (max_val - min_val) + min_val
         return value
 
     def on_slider_changed(self, label, value):
@@ -331,6 +334,13 @@ class FFTImageProcessingApp(QtWidgets.QMainWindow):
                 event.ignore()
         else:
             event.accept()
+
+        # Clean up CuPy memory
+        if USE_CUPY:
+            mempool = cp.get_default_memory_pool()
+            pinned_mempool = cp.get_default_pinned_memory_pool()
+            mempool.free_all_blocks()
+            pinned_mempool.free_all_blocks()
 
     # Hover Method for Original Image
     def on_motion(self, event):
@@ -495,9 +505,20 @@ class FFTImageProcessingApp(QtWidgets.QMainWindow):
             if not output_dir:
                 QtWidgets.QMessageBox.warning(self, "Error", "No output directory selected.")
                 return
-            # Process all images in the input directory
-            image_files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
-            for file_name in image_files:
+            
+            image_files = [f for f in os.listdir(input_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tif', '.tiff'))]
+            
+            if not image_files:
+                QtWidgets.QMessageBox.information(self, "No Images", "No supported image files found in the input directory.")
+                return
+
+            progress = QtWidgets.QProgressDialog("Processing images...", "Cancel", 0, len(image_files), self)
+            progress.setWindowModality(QtCore.Qt.WindowModal)
+
+            for i, file_name in enumerate(image_files):
+                if progress.wasCanceled():
+                    break
+                
                 file_path = os.path.join(input_dir, file_name)
                 # Load the image
                 im = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
@@ -515,156 +536,168 @@ class FFTImageProcessingApp(QtWidgets.QMainWindow):
                 im_to_save = np.clip(im_to_save, 0, 255).astype(np.uint8)
                 save_path = os.path.join(output_dir, file_name)
                 cv2.imwrite(save_path, im_to_save)
+                
+                progress.setValue(i + 1)
+
+            progress.setValue(len(image_files))
             QtWidgets.QMessageBox.information(self, "Batch Processing", "Batch processing completed.")
 
     def update_image(self):
         """Update the processed image based on the current settings."""
-        if self.im_fft_shifted is None:
-            return
+        with self.processing_lock:  # Ensure thread safety
+            if self.im_fft_shifted is None:
+                return
 
-        # Retrieve image dimensions
-        H, W = self.im_fft_shifted.shape
+            # Check available memory
+            available_memory = psutil.virtual_memory().available
+            required_memory = self.im_fft_shifted.nbytes * 3  # Estimate memory needed
+            if required_memory > available_memory:
+                QtWidgets.QMessageBox.warning(self, "Memory Warning", "Not enough memory to process the image.")
+                return
 
-        # Calculate center coordinates (always define crow and ccol)
-        r, c = H, W
-        crow, ccol = r // 2, c // 2
+            # Retrieve image dimensions
+            H, W = self.im_fft_shifted.shape
 
-        # Retrieve slider and checkbox values
-        gaussian_sigma_pct = self.slider_values["Gaussian Blur Sigma (%)"].value()
-        peak_min_distance = self.slider_values["Peak Min Distance"].value()
-        peak_threshold = self.slider_values["Peak Threshold"].value()
-        exclude_radius_pct = self.slider_values["Exclude Radius (%)"].value()
-        mask_radius_pct = self.slider_values["Mask Radius (%)"].value()
-        peak_mask_falloff_pct = self.slider_values["Peak Mask Falloff (%)"].value()
-        gamma_correction = self.slider_values["Gamma Correction"].value()
-        central_mask_radius_pct = self.slider_values["Central Mask Radius (%)"].value()
-        central_mask_aspect_ratio = self.slider_values["Central Mask Aspect Ratio"].value()
-        central_mask_rotation = self.slider_values["Central Mask Rotation"].value()
-        central_mask_falloff_pct = self.slider_values["Central Mask Falloff (%)"].value()
-        antialiasing_intensity = self.slider_values["Anti-Aliasing Intensity (%)"].value() / 100.0  # Adjusted
+            # Calculate center coordinates (always define crow and ccol)
+            r, c = H, W
+            crow, ccol = r // 2, c // 2
 
-        # Convert relative measurements to absolute pixels
-        diag_length = np.sqrt(H**2 + W**2)
-        gaussian_sigma = (gaussian_sigma_pct / 100) * diag_length
-        exclude_radius = (exclude_radius_pct / 100) * diag_length / 2
-        mask_radius = (mask_radius_pct / 100) * diag_length / 2
-        peak_mask_falloff = (peak_mask_falloff_pct / 100) * diag_length / 2
-        central_mask_radius = (central_mask_radius_pct / 100) * diag_length / 2
-        central_mask_falloff = (central_mask_falloff_pct / 100) * diag_length / 2
+            # Retrieve slider and checkbox values
+            gaussian_sigma_pct = self.slider_values["Gaussian Blur Sigma (%)"].value()
+            peak_min_distance = self.slider_values["Peak Min Distance"].value()
+            peak_threshold = self.slider_values["Peak Threshold"].value()
+            exclude_radius_pct = self.slider_values["Exclude Radius (%)"].value()
+            mask_radius_pct = self.slider_values["Mask Radius (%)"].value()
+            peak_mask_falloff_pct = self.slider_values["Peak Mask Falloff (%)"].value()
+            gamma_correction = self.slider_values["Gamma Correction"].value()
+            central_mask_radius_pct = self.slider_values["Central Mask Radius (%)"].value()
+            central_mask_aspect_ratio = self.slider_values["Central Mask Aspect Ratio"].value()
+            central_mask_rotation = self.slider_values["Central Mask Rotation"].value()
+            central_mask_falloff_pct = self.slider_values["Central Mask Falloff (%)"].value()
+            antialiasing_intensity = self.slider_values["Anti-Aliasing Intensity (%)"].value() / 100.0  # Adjusted
 
-        # Retrieve checkbox values
-        enable_peak_suppression = self.checkboxes["Enable Frequency Peak Suppression"].isChecked()
-        enable_attenuation = self.checkboxes["Enable Attenuation (Gamma Correction)"].isChecked()
-        include_central_mask = self.checkboxes["Include Central Preservation Mask"].isChecked()
-        invert_overall_mask = self.checkboxes["Invert Overall Mask"].isChecked()
-        enable_antialiasing = self.checkboxes["Enable Anti-Aliasing Filter"].isChecked()
+            # Convert relative measurements to absolute pixels
+            diag_length = np.sqrt(H**2 + W**2)
+            gaussian_sigma = (gaussian_sigma_pct / 100) * diag_length
+            exclude_radius = (exclude_radius_pct / 100) * diag_length / 2
+            mask_radius = (mask_radius_pct / 100) * diag_length / 2
+            peak_mask_falloff = (peak_mask_falloff_pct / 100) * diag_length / 2
+            central_mask_radius = (central_mask_radius_pct / 100) * diag_length / 2
+            central_mask_falloff = (central_mask_falloff_pct / 100) * diag_length / 2
 
-        # Preprocess the FFT magnitude spectrum
-        magnitude_spectrum = cp.abs(self.im_fft_shifted)
-        if gaussian_sigma > 0:
-            blurred_spectrum = cp_gaussian_filter(magnitude_spectrum, sigma=gaussian_sigma)
-        else:
-            blurred_spectrum = magnitude_spectrum
-        self.blurred_spectrum = blurred_spectrum  # Store for visualization
+            # Retrieve checkbox values
+            enable_peak_suppression = self.checkboxes["Enable Frequency Peak Suppression"].isChecked()
+            enable_attenuation = self.checkboxes["Enable Attenuation (Gamma Correction)"].isChecked()
+            include_central_mask = self.checkboxes["Include Central Preservation Mask"].isChecked()
+            invert_overall_mask = self.checkboxes["Invert Overall Mask"].isChecked()
+            enable_antialiasing = self.checkboxes["Enable Anti-Aliasing Filter"].isChecked()
 
-        # Normalize the magnitude spectrum
-        normalized_magnitude = blurred_spectrum / blurred_spectrum.max()
+            # Preprocess the FFT magnitude spectrum
+            magnitude_spectrum = cp.abs(self.im_fft_shifted)
+            if gaussian_sigma > 0:
+                blurred_spectrum = cp_gaussian_filter(magnitude_spectrum, sigma=gaussian_sigma)
+            else:
+                blurred_spectrum = magnitude_spectrum
+            self.blurred_spectrum = blurred_spectrum  # Store for visualization
 
-        # Apply gamma correction
-        gamma = gamma_correction  # Gamma value from the slider
-        adjusted_magnitude = normalized_magnitude ** gamma
+            # Normalize the magnitude spectrum
+            normalized_magnitude = blurred_spectrum / blurred_spectrum.max()
 
-        # Create attenuation mask
-        attenuation_mask = adjusted_magnitude
+            # Apply gamma correction
+            gamma = gamma_correction  # Gamma value from the slider
+            adjusted_magnitude = normalized_magnitude ** gamma
 
-        # Optionally apply frequency peak suppression
-        if enable_peak_suppression:
-            # Convert to NumPy array for peak detection
-            spectrum_np = cp.asnumpy(blurred_spectrum)
+            # Create attenuation mask
+            attenuation_mask = adjusted_magnitude
 
-            # Create a central exclusion mask to prevent detecting the central peak
-            y, x = np.ogrid[:r, :c]
-            distance = np.sqrt((x - ccol) ** 2 + (y - crow) ** 2)
-            exclusion_mask = distance > exclude_radius
+            # Optionally apply frequency peak suppression
+            if enable_peak_suppression:
+                # Convert to NumPy array for peak detection
+                spectrum_np = cp.asnumpy(blurred_spectrum)
 
-            # Detect peaks
-            coordinates = peak_local_max(
-                spectrum_np,
-                min_distance=int(peak_min_distance),
-                threshold_abs=peak_threshold * spectrum_np.max(),
-                exclude_border=False,
-                labels=exclusion_mask.astype(np.uint8)
-            )
+                # Create a central exclusion mask to prevent detecting the central peak
+                y, x = np.ogrid[:r, :c]
+                distance = np.sqrt((x - ccol) ** 2 + (y - crow) ** 2)
+                exclusion_mask = distance > exclude_radius
 
-            # Create masks for each detected peak
-            peak_masks = []
-            for coord in coordinates:
-                mask = self.create_circular_mask(
-                    self.im_fft_shifted.shape,
-                    center=coord,
-                    radius=mask_radius,
-                    falloff=peak_mask_falloff
+                # Detect peaks
+                coordinates = peak_local_max(
+                    spectrum_np,
+                    min_distance=int(peak_min_distance),
+                    threshold_abs=peak_threshold * spectrum_np.max(),
+                    exclude_border=False,
+                    labels=exclusion_mask.astype(np.uint8)
                 )
-                peak_masks.append(mask)
 
-            # Combine all peak masks
-            if peak_masks:
-                combined_peak_mask = peak_masks[0]
-                for mask in peak_masks[1:]:
-                    combined_peak_mask *= mask
+                # Create masks for each detected peak
+                peak_masks = []
+                for coord in coordinates:
+                    mask = self.create_circular_mask(
+                        self.im_fft_shifted.shape,
+                        center=coord,
+                        radius=mask_radius,
+                        falloff=peak_mask_falloff
+                    )
+                    peak_masks.append(mask)
+
+                # Combine all peak masks
+                if peak_masks:
+                    combined_peak_mask = peak_masks[0]
+                    for mask in peak_masks[1:]:
+                        combined_peak_mask *= mask
+                else:
+                    combined_peak_mask = cp.ones(self.im_fft_shifted.shape, dtype=cp.float32)
             else:
                 combined_peak_mask = cp.ones(self.im_fft_shifted.shape, dtype=cp.float32)
-        else:
-            combined_peak_mask = cp.ones(self.im_fft_shifted.shape, dtype=cp.float32)
 
-        # Create central preservation mask
-        if include_central_mask:
-            central_mask = self.create_elliptical_mask(
-                self.im_fft_shifted.shape,
-                center=(crow, ccol),
-                radius=central_mask_radius,
-                aspect_ratio=central_mask_aspect_ratio,
-                rotation=central_mask_rotation,
-                falloff=central_mask_falloff
-            )
-        else:
-            central_mask = cp.ones(self.im_fft_shifted.shape, dtype=cp.float32)
+            # Create central preservation mask
+            if include_central_mask:
+                central_mask = self.create_elliptical_mask(
+                    self.im_fft_shifted.shape,
+                    center=(crow, ccol),
+                    radius=central_mask_radius,
+                    aspect_ratio=central_mask_aspect_ratio,
+                    rotation=central_mask_rotation,
+                    falloff=central_mask_falloff
+                )
+            else:
+                central_mask = cp.ones(self.im_fft_shifted.shape, dtype=cp.float32)
 
-        # Apply central mask to combined peak mask to protect central peak
-        combined_mask = combined_peak_mask * central_mask
+            # Apply central mask to combined peak mask to protect central peak
+            combined_mask = combined_peak_mask * central_mask
 
-        # Optionally invert the overall mask
-        if invert_overall_mask:
-            combined_mask = 1 - combined_mask
+            # Optionally invert the overall mask
+            if invert_overall_mask:
+                combined_mask = 1 - combined_mask
 
-        # Step 1: Apply the frequency peak suppression mask
-        im_fft_filtered = self.im_fft_shifted * combined_mask
+            # Step 1: Apply the frequency peak suppression mask
+            im_fft_filtered = self.im_fft_shifted * combined_mask
 
-        if enable_peak_suppression and enable_attenuation:
-            # Step 2: Create suppression areas mask (inverted mask)
-            suppression_areas_mask = 1 - combined_mask
-            # Step 3: Apply gamma correction to frequencies in suppression areas
-            im_fft_suppression = self.im_fft_shifted * suppression_areas_mask * attenuation_mask
-            # Step 4: Add the attenuated frequencies back to the filtered FFT image
-            im_fft_filtered = im_fft_filtered + im_fft_suppression
+            if enable_peak_suppression and enable_attenuation:
+                # Step 2: Create suppression areas mask (inverted mask)
+                suppression_areas_mask = 1 - combined_mask
+                # Step 3: Apply gamma correction to frequencies in suppression areas
+                im_fft_suppression = self.im_fft_shifted * suppression_areas_mask * attenuation_mask
+                # Step 4: Add the attenuated frequencies back to the filtered FFT image
+                im_fft_filtered = im_fft_filtered + im_fft_suppression
 
-        # Apply Anti-Aliasing Filter if enabled
-        if enable_antialiasing:
-            antialiasing_mask = self.create_antialiasing_mask(self.im_fft_shifted.shape, antialiasing_intensity)
-            im_fft_filtered *= antialiasing_mask
+            # Apply Anti-Aliasing Filter if enabled
+            if enable_antialiasing:
+                antialiasing_mask = self.create_antialiasing_mask(self.im_fft_shifted.shape, antialiasing_intensity)
+                im_fft_filtered *= antialiasing_mask
 
-        # Store the filtered FFT for plotting
-        self.im_fft_filtered = im_fft_filtered
+            # Store the filtered FFT for plotting
+            self.im_fft_filtered = im_fft_filtered
 
-        # Inverse FFT to reconstruct the image
-        im_ifft = cp_fft.ifftshift(im_fft_filtered)
-        self.im_new = cp.abs(cp_fft.ifft2(im_ifft))
+            # Inverse FFT to reconstruct the image
+            im_ifft = cp_fft.ifftshift(im_fft_filtered)
+            self.im_new = cp.abs(cp_fft.ifft2(im_ifft))
 
-        # Set unsaved changes flag
-        self.unsaved_changes = True
+            # Set unsaved changes flag
+            self.unsaved_changes = True
 
-        # Update the plot
-        self.plot_images()
+            # Update the plot
+            self.plot_images()
 
     # Mask Creation Functions
     def create_circular_mask(self, shape, center, radius, falloff=0):
@@ -710,11 +743,9 @@ class FFTImageProcessingApp(QtWidgets.QMainWindow):
         cy, cx = H // 2, W // 2
         radius = cp.sqrt((X - cx) ** 2 + (Y - cy) ** 2)
         max_radius = cp.sqrt((cx) ** 2 + (cy) ** 2)
-        # Adjust intensity to invert scale
-        adjusted_intensity = intensity  # From 0 to 1
-        mask = 1 - adjusted_intensity * (radius / max_radius)
-        mask = cp.clip(mask, 0, 1)
-        return mask
+        # Use a smooth transition function
+        mask = 1 - intensity * (1 - cp.cos(cp.pi * radius / max_radius)) / 2
+        return mask.astype(cp.float32)  # Ensure float32 precision
 
     # Visualization Method
     def plot_images(self):
