@@ -14,11 +14,13 @@ The application restores clarity and fidelity to images by suppressing these pat
 
 ## Examples
 
-### Example 1
+### Halftone Pattern Example
 ![Example 1 Composite](examples/Example_1_composite.png)
 
 ### Application Screenshot
 ![Mezzotint Pattern](examples/03_1c_screenshot_mezzotint_pattern_Saint_Agnes_crop_640px.png)
+
+### [Other Examples](examples/)
 
 ## Features
 
