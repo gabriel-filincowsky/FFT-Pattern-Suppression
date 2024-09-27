@@ -55,7 +55,19 @@ Please refer to the [Installation Guide](INSTALLATION.md) for installation instr
 
 ## License
 
-This project is licensed under the **Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)** License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. See the [LICENSE](LICENSE.md) file for details.
+
+### AGPL-3.0 Summary:
+
+- You can use, modify, and distribute this software freely.
+- If you distribute the software or a modified version, you must:
+  - Provide the complete source code.
+  - License your modifications under the same AGPL-3.0 terms.
+  - Preserve the original copyright notices.
+- If you run a modified version of the software on a server and allow users to interact with it remotely, you must also make the source code of your modified version available to those users.
+- There's no warranty for the software.
+
+This summary is not a substitute for the full license. Always refer to the complete [LICENSE](LICENSE.md) for legal details.
 
 ## Contributing
 
