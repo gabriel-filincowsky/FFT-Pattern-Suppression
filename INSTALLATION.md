@@ -4,10 +4,17 @@ This guide will walk you through installing the FFT Pattern Suppression applicat
 
 ## Quick Installation
 
-For a quick and easy installation, use our one-click installation scripts:
+For a quick and easy installation, follow these steps:
 
-- **Windows:** Download and run `install.bat` as administrator.
-- **macOS/Linux:** Download `install.sh`, make it executable with `chmod +x install.sh`, then run it with `./install.sh`.
+1. Create a new folder on your computer where you want to install the application (e.g., "FFT-Pattern-Suppression" on your Desktop).
+
+2. Download the appropriate one-click installation script for your operating system:
+   - **Windows:** Download [`install.bat`](https://github.com/your_username/FFT-Pattern-Suppression/raw/main/install.bat)
+   - **macOS/Linux:** Download [`install.sh`](https://github.com/your_username/FFT-Pattern-Suppression/raw/main/install.sh)
+
+3. Move the downloaded script to the folder you created in step 1.
+
+4. Follow the instructions below for your operating system.
 
 These scripts will automatically set up the environment and install all necessary dependencies.
 
@@ -43,22 +50,34 @@ If you prefer a manual installation or encounter any issues, please refer to the
 
 ### Windows One-Click
 
-- Download the `install.bat` script from the repository.
-- Right-click on `install.bat` and select **"Run as administrator"**.
-- The script will automatically install all necessary components and run the application.
+1. Open the folder where you saved `install.bat`.
+2. Right-click on `install.bat` and select **"Run as administrator"**.
+   - If prompted by User Account Control, click "Yes" to allow the script to run.
+3. A command prompt window will open. Follow the on-screen instructions.
+4. The script will automatically install all necessary components and run the application.
+5. If asked about installing CUDA and CuPy, only select 'y' if you have an NVIDIA GPU and want to use GPU acceleration.
+
+Note: The installation process may take several minutes. Please be patient and do not close the command prompt window.
 
 ### macOS/Linux One-Click
 
-- Download the `install.sh` script from the repository.
-- Open Terminal and navigate to the download location.
-- Make the script executable:
-  ```bash
-  chmod +x install.sh
-  ```
-- Run the script:
-  ```bash
-  ./install.sh
-  ```
+1. Open Terminal.
+2. Navigate to the folder where you saved `install.sh`. For example, if it's on your Desktop:
+   ```bash
+   cd ~/Desktop/FFT-Pattern-Suppression
+   ```
+3. Make the script executable:
+   ```bash
+   chmod +x install.sh
+   ```
+4. Run the script:
+   ```bash
+   ./install.sh
+   ```
+5. Follow the on-screen instructions.
+6. If asked about installing CUDA and CuPy, only select 'y' if you have an NVIDIA GPU and want to use GPU acceleration.
+
+Note: You may be asked to enter your system password to install some components. This is normal.
 
 ---
 
@@ -132,6 +151,10 @@ If you prefer a manual installation or encounter any issues, please refer to the
     pip install cupy-cuda118  # Replace '118' with your CUDA version
     pip install -r requirements.txt
     ```
+
+You can find the requirements files here:
+- [`requirements_cpu.txt`](https://github.com/your_username/FFT-Pattern-Suppression/raw/main/requirements_cpu.txt)
+- [`requirements.txt`](https://github.com/your_username/FFT-Pattern-Suppression/raw/main/requirements.txt)
 
 ### macOS Manual
 
