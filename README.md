@@ -12,6 +12,14 @@ FFT Pattern Suppression is a tool designed to automatically detect and remove un
 
 The application restores clarity and fidelity to images by suppressing these patterns by leveraging Fast Fourier Transform (FFT) filtering techniques.
 
+## Examples
+
+### Example 1
+![Example 1 Composite](examples/Example_1_composite.png)
+
+### Application Screenshot
+![Mezzotint Pattern](examples/03_1c_screenshot_mezzotint_pattern_Saint_Agnes_crop_640px.png)
+
 ## Features
 
 - **Automatic Detection and Removal:** Utilizes FFT to detect and suppress unwanted frequency components.
