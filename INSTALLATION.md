@@ -2,13 +2,27 @@
 
 This guide will walk you through installing the FFT Pattern Suppression application on your computer.
 
+## Quick Installation
+
+For a quick and easy installation, use our one-click installation scripts:
+
+- **Windows:** Download and run `install.bat` as administrator.
+- **macOS/Linux:** Download `install.sh`, make it executable with `chmod +x install.sh`, then run it with `./install.sh`.
+
+These scripts will automatically set up the environment and install all necessary dependencies.
+
+If you prefer a manual installation or encounter any issues, please refer to the detailed instructions below.
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Installation Steps](#installation-steps)
-  - [Windows](#windows)
-  - [macOS](#macos)
-  - [Linux](#linux)
+- [One-Click Installation](#one-click-installation)
+  - [Windows](#windows-one-click)
+  - [macOS/Linux](#macoslinux-one-click)
+- [Manual Installation](#manual-installation)
+  - [Windows](#windows-manual)
+  - [macOS](#macos-manual)
+  - [Linux](#linux-manual)
 - [Running the Application](#running-the-application)
 - [Troubleshooting](#troubleshooting)
 - [Support](#support)
@@ -25,9 +39,32 @@ This guide will walk you through installing the FFT Pattern Suppression applicat
 
 ---
 
-## Installation Steps
+## One-Click Installation
 
-### Windows
+### Windows One-Click
+
+- Download the `install.bat` script from the repository.
+- Right-click on `install.bat` and select **"Run as administrator"**.
+- The script will automatically install all necessary components and run the application.
+
+### macOS/Linux One-Click
+
+- Download the `install.sh` script from the repository.
+- Open Terminal and navigate to the download location.
+- Make the script executable:
+  ```bash
+  chmod +x install.sh
+  ```
+- Run the script:
+  ```bash
+  ./install.sh
+  ```
+
+---
+
+## Manual Installation
+
+### Windows Manual
 
 #### 1. Install Python
 
@@ -64,19 +101,7 @@ This guide will walk you through installing the FFT Pattern Suppression applicat
   - Select your operating system and download the appropriate CUDA Toolkit installer.
   - Run the installer and follow the default settings.
 
-#### 4. Download the Application
-
-- **One-Click Installation:**
-  - Download the `install.bat` script from the repository.
-  - Right-click on `install.bat` and select **"Run as administrator"**.
-  - The script will automatically install all necessary components and run the application.
-
-- **Manual Download:**
-  - Visit the [GitHub Repository](https://github.com/your_username/FFT-Pattern-Suppression).
-  - Click on the green **"Code"** button and select **"Download ZIP"**.
-  - Extract the ZIP file to a folder on your computer.
-
-#### 5. Install Dependencies (If Not Using the Script)
+#### 4. Install Dependencies
 
 - **Open Command Prompt:**
   - Press `Win + R`, type `cmd`, and press Enter.
@@ -108,7 +133,7 @@ This guide will walk you through installing the FFT Pattern Suppression applicat
     pip install -r requirements.txt
     ```
 
-### macOS
+### macOS Manual
 
 #### 1. Install Python
 
@@ -128,26 +153,7 @@ This guide will walk you through installing the FFT Pattern Suppression applicat
   xcode-select --install
   ```
 
-#### 3. Download the Application
-
-- **One-Click Installation:**
-  - Download the `install.sh` script from the repository.
-  - Open Terminal and navigate to the download location.
-  - Make the script executable:
-    ```bash
-    chmod +x install.sh
-    ```
-  - Run the script:
-    ```bash
-    ./install.sh
-    ```
-
-- **Manual Download:**
-  - Visit the [GitHub Repository](https://github.com/your_username/FFT-Pattern-Suppression).
-  - Click on the green **"Code"** button and select **"Download ZIP"**.
-  - Extract the ZIP file to a folder on your computer.
-
-#### 4. Install Dependencies (If Not Using the Script)
+#### 3. Install Dependencies
 
 - **Open Terminal.**
 
@@ -173,9 +179,12 @@ This guide will walk you through installing the FFT Pattern Suppression applicat
     pip install -r requirements_cpu.txt
     ```
   - **With CUDA (GPU Acceleration):**
-    - **Note:** NVIDIA GPUs are not supported on newer macOS versions. GPU acceleration may not be available.
+    ```bash
+    pip install cupy-cuda118  # Replace '118' with your CUDA version
+    pip install -r requirements.txt
+    ```
 
-### Linux
+### Linux Manual
 
 #### 1. Install Python and Git
 
@@ -202,26 +211,7 @@ This guide will walk you through installing the FFT Pattern Suppression applicat
 - **Install NVIDIA GPU Drivers and CUDA Toolkit:**
   - Follow the instructions specific to your Linux distribution.
 
-#### 3. Download the Application
-
-- **One-Click Installation:**
-  - Download the `install.sh` script from the repository.
-  - Make the script executable:
-    ```bash
-    chmod +x install.sh
-    ```
-  - Run the script:
-    ```bash
-    ./install.sh
-    ```
-
-- **Manual Download:**
-  - Clone the repository:
-    ```bash
-    git clone https://github.com/your_username/FFT-Pattern-Suppression.git
-    ```
-
-#### 4. Install Dependencies (If Not Using the Script)
+#### 3. Install Dependencies
 
 - **Navigate to the Application Directory:**
   ```bash
