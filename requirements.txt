@@ -1,6 +1,7 @@
 numpy
-cupy-cuda118 # Optional, for GPU acceleration
+cupy-cuda118  # Replace '118' with the appropriate CUDA version
 PyQt5
 matplotlib
 opencv-python
 scikit-image
+psutil
