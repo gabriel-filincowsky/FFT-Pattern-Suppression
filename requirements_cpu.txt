@@ -3,3 +3,4 @@ PyQt5
 matplotlib
 opencv-python
 scikit-image
+psutil
