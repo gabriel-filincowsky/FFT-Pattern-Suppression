@@ -1,6 +1,11 @@
 # FFT Pattern Suppression for Image Restoration
 
-**Version:** 2024-09-22
+**Version:** 2024-09-27
+
+**Changes:**
+- Updated README.md to reflect the correct license
+- Added other examples link to README.md
+- Added example images and updated requirements
 
 ## Overview
 
