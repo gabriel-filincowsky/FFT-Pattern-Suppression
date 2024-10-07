@@ -1,11 +1,19 @@
 # FFT Pattern Suppression for Image Restoration
 
-**Version:** 2024-09-27
+**Revision:** 2024-10-05
 
 **Changes:**
 - Updated README.md to reflect the correct license
 - Added other examples link to README.md
 - Added example images and updated requirements
++ **Rev. 2024-10-05 Updates:**
++ - Introduced High-Pass Filtering Preprocessing to mitigate artifacts and support color image processing.
++ - Optimized Color Image Processing to maintain color fidelity across RGB channels.
++ - Enhanced Masking Techniques with aspect ratio, orientation, and falloff modifiers.
++ - Added Border Expansion padding to minimize edge artifacts during FFT processing.
++ - Implemented Performance Optimizations by limiting processing to the displayed area for improved responsiveness.
++ - Updated Stepwise Workflow UI to guide users through a logical, phase-based filtering process.
++ - Enabled GPU Acceleration via CuPy and CUDA for high-performance processing on NVIDIA GPUs.
 
 ## Overview
 
@@ -16,6 +24,12 @@ FFT Pattern Suppression is a tool designed to automatically detect and remove un
 - **Offset Printing Patterns:** Halftone dots arranged in a grid in color images.
 
 The application restores clarity and fidelity to images by suppressing these patterns by leveraging Fast Fourier Transform (FFT) filtering techniques.
++ **New Features:**
++ - **High-Pass Filtering Preprocessing:** Separates high-frequency details from low-frequency color information to reduce artifacts.
++ - **Advanced Masking Techniques:** Offers finer control over masking areas with aspect ratio, orientation, and falloff modifiers.
++ - **Border Expansion:** Minimizes edge artifacts by adding padding during FFT processing.
++ - **Performance Optimizations:** Enhances responsiveness by limiting processing to the displayed area at appropriate resolutions.
++ - **Stepwise Workflow UI:** Guides users through a logical, phase-based filtering process for improved usability.
 
 ## Examples
 
@@ -34,6 +48,13 @@ The application restores clarity and fidelity to images by suppressing these pat
 - **Parameter Management:** Save, load, and set default filter settings.
 - **Batch Processing:** Efficiently process large collections of images.
 - **GPU Acceleration (Optional):** Leverages GPU via CuPy and CUDA for high-performance processing on systems with NVIDIA GPUs.
++ **Enhanced Features in Rev.2024-10-05:**
++ - **High-Pass Filtering Preprocessing:** Mitigates artifacts and supports color image processing.
++ - **Optimized Color Image Processing:** Maintains color fidelity across RGB channels.
++ - **Advanced Masking Techniques:** Includes aspect ratio, orientation, and falloff modifiers for finer control.
++ - **Border Expansion:** Adds padding to minimize edge artifacts during FFT processing.
++ - **Performance Optimizations:** Limits processing to displayed areas for improved responsiveness.
++ - **Stepwise Workflow UI:** Guides users through a logical, phase-based filtering process.
 
 ## Target Audience
 
@@ -52,6 +73,13 @@ Please refer to the [Installation Guide](INSTALLATION.md) for installation instr
 2. **Adjust Parameters:** Use the sliders and checkboxes to fine-tune the filtering process.
 3. **Real-Time Feedback:** View the original image, FFT spectrum, and processed image side by side.
 4. **Save the Processed Image:** Click on "Save Processed Image" to save your results.
+
++ **Rev.2024-10-05 Usage Enhancements:**
++ 1. **High-Pass Filtering:** Begin by applying high-pass filters to separate high-frequency details.
++ 2. **Detailed Filtering:** Utilize advanced masking techniques to target specific frequency components.
++ 3. **Border Expansion:** Ensure minimal edge artifacts by enabling border expansion during processing.
++ 4. **Performance Optimization:** Experience improved responsiveness with area-specific processing.
++ 5. **Stepwise Workflow:** Follow the guided workflow for an efficient filtering process.
 
 ## Performance Note
 
