@@ -26,35 +26,43 @@ By breaking down the application into distinct modules with clear responsibiliti
 ## Modular Structure
 
 The modularized FFT Pattern Suppression application is organized into the following directory structure:
-
-fft_pattern_suppression/
-├── src/
-│ ├── data_processing/
-│ │ ├── init.py
-│ │ ├── data_loader.py
-│ │ └── data_preprocessor.py
-│ ├── fft/
-│ │ ├── init.py
-│ │ ├── fft_processor.py
-│ │ └── pattern_suppressor.py
-│ ├── visualization/
-│ │ ├── init.py
-│ │ └── plotter.py
-│ ├── utils/
-│ │ ├── init.py
-│ │ ├── config.py
-│ │ └── helpers.py
-│ └── main.py
+```bash
+fft_image_processing_app/
+├── controllers/
+│ ├── init.py
+│ ├── image_controller.py
+│ ├── main_controller.py
+│ └── processing_controller.py
+├── models/
+│ ├── init.py
+│ ├── image_model.py
+│ └── parameters_model.py
+├── views/
+│ ├── init.py
+│ ├── main_window.py
+│ ├── phase1_view.py
+│ └── phase2_view.py
+├── processing/
+│ ├── init.py
+│ ├── fft_processor.py
+│ ├── mask_generator.py
+│ └── utils.py
+├── utils/
+│ ├── init.py
+│ └── file_handler.py
 ├── tests/
 │ ├── init.py
-│ ├── test_data_processing.py
-│ ├── test_fft.py
-│ └── test_visualization.py
-├── data/
-│ └── sample_data.csv
+│ └── test_fft_processor.py
+├── main.py
 ├── requirements.txt
-├── setup.py
+├── requirements_cpu.txt
+├── install.bat
+├── install.sh
+├── LICENSE.md
+├── CONTRIBUTING.md
+├── INSTALLATION.md
 └── README.md
+```
 
 This structure organizes the application into logical modules, each with a specific responsibility:
 

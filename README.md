@@ -96,33 +96,38 @@ Please refer to the [Installation Guide](INSTALLATION.md) for installation instr
 ```bash
 fft_image_processing_app/
 ├── controllers/
-│   ├── __init__.py
-│   ├── image_controller.py
-│   ├── main_controller.py
-│   └── processing_controller.py
+│ ├── init.py
+│ ├── image_controller.py
+│ ├── main_controller.py
+│ └── processing_controller.py
 ├── models/
-│   ├── __init__.py
-│   ├── image_model.py
-│   └── parameters_model.py
+│ ├── init.py
+│ ├── image_model.py
+│ └── parameters_model.py
 ├── views/
-│   ├── __init__.py
-│   ├── main_window.py
-│   ├── phase1_view.py
-│   └── phase2_view.py
+│ ├── init.py
+│ ├── main_window.py
+│ ├── phase1_view.py
+│ └── phase2_view.py
 ├── processing/
-│   ├── __init__.py
-│   ├── fft_processor.py
-│   ├── mask_generator.py
-│   └── utils.py
+│ ├── init.py
+│ ├── fft_processor.py
+│ ├── mask_generator.py
+│ └── utils.py
 ├── utils/
-│   ├── __init__.py
-│   └── file_handler.py
+│ ├── init.py
+│ └── file_handler.py
 ├── tests/
-│   ├── __init__.py
-│   ├── test_fft_processor.py
-│   └── test_mask_generator.py
+│ ├── init.py
+│ └── test_fft_processor.py
 ├── main.py
 ├── requirements.txt
+├── requirements_cpu.txt
+├── install.bat
+├── install.sh
+├── LICENSE.md
+├── CONTRIBUTING.md
+├── INSTALLATION.md
 └── README.md
 ```
 
