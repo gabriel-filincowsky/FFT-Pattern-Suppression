@@ -1,19 +1,34 @@
 # FFT Pattern Suppression for Image Restoration
 
-**Revision:** 2024-10-05
+**Revision:** 2024-10-08
 
 **Changes:**
-- Updated README.md to reflect the correct license
-- Added other examples link to README.md
-- Added example images and updated requirements
-+ **Rev. 2024-10-05 Updates:**
-+ - Introduced High-Pass Filtering Preprocessing to mitigate artifacts and support color image processing.
-+ - Optimized Color Image Processing to maintain color fidelity across RGB channels.
-+ - Enhanced Masking Techniques with aspect ratio, orientation, and falloff modifiers.
-+ - Added Border Expansion padding to minimize edge artifacts during FFT processing.
-+ - Implemented Performance Optimizations by limiting processing to the displayed area for improved responsiveness.
-+ - Updated Stepwise Workflow UI to guide users through a logical, phase-based filtering process.
-+ - Enabled GPU Acceleration via CuPy and CUDA for high-performance processing on NVIDIA GPUs.
++ **Rev. 2024-10-08 Updates:**
++ - Modularization: The application has been modularized to improve maintainability, scalability, and code quality. The modular structure organizes the application into logical components, each with a specific responsibility. For more details, please refer to the [Modularization Documentation](docs/MODULARIZATION.md).
+
+## Table of Contents
+
+1. [Examples](#examples)
+2. [Overview](#overview)
+3. [Features](#features)
+4. [Target Audience](#target-audience)
+5. [Installation](#installation)
+6. [Usage](#usage)
+7. [Performance Note](#performance-note)
+8. [Project Structure](#project-structure)
+9. [License](#license)
+10. [Contributing](#contributing)
+11. [Disclaimer](#disclaimer)
+
+## Examples
+
+### Halftone Pattern Example
+![Example 1 Composite](examples/Example_1_composite.png)
+
+### Application Screenshot
+![Mezzotint Pattern](examples/03_1c_screenshot_mezzotint_pattern_Saint_Agnes_crop_640px.png)
+
+### [Other Examples](examples/)
 
 ## Overview
 
@@ -30,16 +45,6 @@ The application restores clarity and fidelity to images by suppressing these pat
 + - **Border Expansion:** Minimizes edge artifacts by adding padding during FFT processing.
 + - **Performance Optimizations:** Enhances responsiveness by limiting processing to the displayed area at appropriate resolutions.
 + - **Stepwise Workflow UI:** Guides users through a logical, phase-based filtering process for improved usability.
-
-## Examples
-
-### Halftone Pattern Example
-![Example 1 Composite](examples/Example_1_composite.png)
-
-### Application Screenshot
-![Mezzotint Pattern](examples/03_1c_screenshot_mezzotint_pattern_Saint_Agnes_crop_640px.png)
-
-### [Other Examples](examples/)
 
 ## Features
 
@@ -85,6 +90,48 @@ Please refer to the [Installation Guide](INSTALLATION.md) for installation instr
 
 - **With CUDA and CuPy:** The application utilizes GPU acceleration for faster processing.
 - **Without CUDA and CuPy:** The application will run using CPU only, and performance may be degraded, especially with large images.
+
+## Project Structure
+
+```bash
+fft_image_processing_app/
+├── controllers/
+│   ├── __init__.py
+│   ├── image_controller.py
+│   ├── main_controller.py
+│   └── processing_controller.py
+├── models/
+│   ├── __init__.py
+│   ├── image_model.py
+│   └── parameters_model.py
+├── views/
+│   ├── __init__.py
+│   ├── main_window.py
+│   ├── phase1_view.py
+│   └── phase2_view.py
+├── processing/
+│   ├── __init__.py
+│   ├── fft_processor.py
+│   ├── mask_generator.py
+│   └── utils.py
+├── utils/
+│   ├── __init__.py
+│   └── file_handler.py
+├── tests/
+│   ├── __init__.py
+│   ├── test_fft_processor.py
+│   └── test_mask_generator.py
+├── main.py
+├── requirements.txt
+└── README.md
+```
+
+- **controllers/**: Manages application logic and interactions.
+- **models/**: Handles data structures and parameter management.
+- **views/**: Manages UI components.
+- **processing/**: Contains image processing logic.
+- **utils/**: Provides utility functions and handles dependencies.
+- **tests/**: Contains unit tests to ensure module functionality.
 
 ## License
 

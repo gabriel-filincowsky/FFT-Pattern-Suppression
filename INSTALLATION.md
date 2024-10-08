@@ -9,8 +9,8 @@ For a quick and easy installation, follow these steps:
 1. Create a new folder on your computer where you want to install the application (e.g., "FFT-Pattern-Suppression" on your Desktop).
 
 2. Download the appropriate one-click installation script for your operating system:
-   - **Windows:** Download [`install.bat`](https://github.com/your_username/FFT-Pattern-Suppression/raw/main/install.bat)
-   - **macOS/Linux:** Download [`install.sh`](https://github.com/your_username/FFT-Pattern-Suppression/raw/main/install.sh)
+   - **Windows:** Download [`install.bat`](https://github.com/gabriel-filincowsky/FFT-Pattern-Suppression/raw/main/install.bat)
+   - **macOS/Linux:** Download [`install.sh`](https://github.com/gabriel-filincowsky/FFT-Pattern-Suppression/raw/main/install.sh)
 
 3. Move the downloaded script to the folder you created in step 1.
 
@@ -57,7 +57,7 @@ If you prefer a manual installation or encounter any issues, please refer to the
 4. The script will automatically install all necessary components and run the application.
 5. If asked about installing CUDA and CuPy, only select 'y' if you have an NVIDIA GPU and want to use GPU acceleration.
 
-Note: The installation process may take several minutes. Please be patient and do not close the command prompt window.
+**Note:** The installation process may take several minutes. Please be patient and do not close the command prompt window.
 
 ### macOS/Linux One-Click
 
@@ -77,7 +77,7 @@ Note: The installation process may take several minutes. Please be patient and d
 5. Follow the on-screen instructions.
 6. If asked about installing CUDA and CuPy, only select 'y' if you have an NVIDIA GPU and want to use GPU acceleration.
 
-Note: You may be asked to enter your system password to install some components. This is normal.
+**Note:** You may be asked to enter your system password to install some components. This is normal.
 
 ---
 
@@ -127,7 +127,7 @@ Note: You may be asked to enter your system password to install some components.
 
 - **Navigate to the Application Directory:**
   ```bash
-  cd path\to\FFT-Pattern-Suppression
+  cd FFT-Pattern-Suppression
   ```
 
 - **Create a Virtual Environment (Optional but Recommended):**
@@ -153,8 +153,8 @@ Note: You may be asked to enter your system password to install some components.
     ```
 
 You can find the requirements files here:
-- [`requirements_cpu.txt`](https://github.com/your_username/FFT-Pattern-Suppression/raw/main/requirements_cpu.txt)
-- [`requirements.txt`](https://github.com/your_username/FFT-Pattern-Suppression/raw/main/requirements.txt)
+- [`requirements_cpu.txt`](https://github.com/gabriel-filincowsky/FFT-Pattern-Suppression/raw/main/requirements_cpu.txt)
+- [`requirements.txt`](https://github.com/gabriel-filincowsky/FFT-Pattern-Suppression/raw/main/requirements.txt)
 
 ### macOS Manual
 
@@ -182,7 +182,7 @@ You can find the requirements files here:
 
 - **Navigate to the Application Directory:**
   ```bash
-  cd path/to/FFT-Pattern-Suppression
+  cd FFT-Pattern-Suppression
   ```
 
 - **Create a Virtual Environment (Optional but Recommended):**
@@ -273,12 +273,20 @@ You can find the requirements files here:
 - **Manual Start:**
   - **Windows:**
     ```bash
-    python fft_pattern_suppression_app.py
+    python main.py
     ```
   - **macOS/Linux:**
     ```bash
-    python3 fft_pattern_suppression_app.py
+    python3 main.py
     ```
+
+---
+
+**Additional Notes:**
+
+- Ensure that all paths and repository URLs reflect the updated `FFT-Pattern-Suppression` directory.
+- Verify that `main.py` exists and serves as the entry point for the application.
+- Update any other scripts or documentation that reference the old directory name or entry point as necessary.
 
 ---
 
@@ -306,7 +314,7 @@ You can find the requirements files here:
 
 If you encounter any issues or have questions:
 
-- **GitHub Issues:** Submit a ticket on the [GitHub Issues](https://github.com/your_username/FFT-Pattern-Suppression/issues) page.
+- **GitHub Issues:** Submit a ticket on the [GitHub Issues](https://github.com/gabriel-filincowsky/FFT-Pattern-Suppression/issues) page.
 
 ---
 

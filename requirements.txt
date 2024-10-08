@@ -1,7 +1,8 @@
-numpy
-cupy-cuda118  # Replace '118' with the appropriate CUDA version
 PyQt5
+numpy
+cupy-cuda11x  # Replace '11x' with your CUDA version, or omit if not using CuPy
 matplotlib
+scipy
 opencv-python
 scikit-image
 psutil

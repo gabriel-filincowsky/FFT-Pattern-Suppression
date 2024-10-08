@@ -4,8 +4,8 @@ Thank you for considering contributing to this project!
 
 ## How to Contribute
 
-- **Report Bugs:** Use the [GitHub Issues](https://github.com/your_username/FFT-Pattern-Suppression/issues) to report bugs.
-- **Feature Requests:** Submit feature requests or enhancements through the Issues page.
+- **Report Bugs:** Use the [GitHub Issues](https://github.com/gabriel-filincowsky/FFT-Pattern-Suppression/issues) to report bugs.
+- **Feature Requests:** Submit feature requests or enhancements through the [GitHub Issues](https://github.com/gabriel-filincowsky/FFT-Pattern-Suppression/issues) page.
 - **Pull Requests:** Fork the repository, make your changes, and submit a pull request.
 
 ## Guidelines

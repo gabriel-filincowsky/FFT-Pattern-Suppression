@@ -1,6 +1,6 @@
 **FFT Pattern Suppression for Image Restoration**
 
-**Rev. 2024-10-05**
+**Rev. 2024-10-08**
 
 ---
 
@@ -10,12 +10,7 @@ The primary goal of this application is to **automatically detect and remove pe
 
 **Enhancements in this Revision:**
 
-- **High-Pass Filtering Preprocessing:** Introduced to mitigate artifacts and support color image processing by separating high-frequency details from low-frequency color information.
-- **Optimized Color Image Processing:** Enhanced to maintain color fidelity and effectively handle RGB channels.
-- **Advanced Masking Techniques:** Improved exclusion masks with aspect ratio, orientation, and falloff modifiers.
-- **Border Expansion:** Added padding to minimize edge artifacts during FFT processing.
-- **Performance Optimizations:** Limited processing to the displayed area at appropriate resolutions for improved responsiveness.
-- **Stepwise Workflow UI:** Updated the user interface to guide users through a logical, phase-based filtering process.
+- **Modularized Codebase:** The application has been restructured into a modular architecture to improve maintainability, scalability, and facilitate future enhancements. See [MODULARIZATION.md](docs/MODULARIZATION.md) for detailed information.
 
 ---
 
@@ -233,49 +228,17 @@ The application offers a comprehensive set of parameters that users can adjust t
         
 ---
 
-**Future Improvements and Planned Features**
+**Modular Architecture and Design**
 
-To further enhance the application\'s capabilities, several improvements and new techniques are planned for future iterations:
+The application now features a modular architecture that separates concerns into distinct components, enhancing code readability, maintainability, and extensibility.
 
-1.  **Support for Color Images**:
-    
-    -   Extend processing capabilities to color images by handling each color channel separately or using FFT3.
-    
-    -   Address periodic patterns present in color channels, such as moiré patterns in scanned magazine images.
-    
-2.  **Advanced Filtering Techniques**:
-    
-    -   Implement additional filtering methods such as **adaptive filters**, **Wiener filters**, or **anisotropic diffusion** to improve pattern removal while preserving image details.
-    
-3.  **Customizable Masks**:
-    
-    -   Implement shape-based masks (e.g., stars, polygons) and enable users to adjust mask parameters interactively on the FFT spectrum.
-    
-4.  **Enhanced Peak Detection Visualization**:
-    
-    -   Provide visual markers on the FFT spectrum to indicate detected peaks, making it easier for users to understand which frequencies are being targeted.
-    
-    -   Incorporate more sophisticated peak detection algorithms with options for multi-scale analysis and adaptive thresholds.
-    
-5.  **User-Friendly Presets and Automation**:
-    
-    -   Include predefined presets tailored for common scenarios (e.g., halftone removal, moiré pattern suppression) to simplify the process for users.
-    
-    -   Implement an automated mode where the application suggests optimal parameters based on image analysis.
-    
-6.  **Integration with Other Tools**:
-    
-    -   Explore integration options with popular image processing software or libraries (e.g., ComfyUI, Adobe Photoshop plugins, GIMP scripts), allowing users to incorporate the application into their existing workflows.
-    
-7.  **Multi-Language Support**:
-    
-    -   Localize the application into multiple languages to make it accessible to a broader audience.
-    
-8.  **Performance Enhancements**:
-    
-    -   Further optimize GPU acceleration and memory management to handle exceptionally large images more efficiently.
-    
-    -   Implement multi-threading or parallel processing techniques to speed up batch operations.
+- **Modular Structure:**
+    - `data_processing`: Handles data loading and preprocessing.
+    - `fft`: Contains the core FFT processing and pattern suppression logic.
+    - `visualization`: Manages plotting and visualization of results.
+    - `utils`: Provides utility functions and configuration management.
+
+For a comprehensive overview of the modular structure, please refer to the [MODULARIZATION.md](docs/MODULARIZATION.md) file.
 
 ---
 

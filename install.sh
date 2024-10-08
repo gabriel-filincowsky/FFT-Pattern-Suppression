@@ -26,7 +26,7 @@ fi
 
 # Clone the repository
 if [ ! -d "FFT-Pattern-Suppression" ]; then
-    git clone https://github.com/your_username/FFT-Pattern-Suppression.git
+    git clone https://github.com/gabriel-filincowsky/FFT-Pattern-Suppression.git
 fi
 cd FFT-Pattern-Suppression
 
@@ -48,4 +48,4 @@ else
 fi
 
 # Run the application
-python3 fft_pattern_suppression_app.py
+python3 main.py

@@ -29,7 +29,7 @@ if /i "%cuda_choice%"=="y" (
 
 :: Clone the repository
 if not exist FFT-Pattern-Suppression (
-    git clone https://github.com/your_username/FFT-Pattern-Suppression.git
+    git clone https://github.com/gabriel-filincowsky/FFT-Pattern-Suppression.git
 )
 cd FFT-Pattern-Suppression
 
@@ -51,6 +51,6 @@ if %INSTALL_CUPY%==1 (
 )
 
 :: Run the application
-python fft_pattern_suppression_app.py
+python main.py
 
 pause
