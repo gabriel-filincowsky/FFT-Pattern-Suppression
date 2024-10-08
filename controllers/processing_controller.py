@@ -6,7 +6,6 @@ from utils.cupy_handler import cp, cp_fft
 import numpy as np
 from skimage.feature import peak_local_max
 import logging
-import cupy as cp  # Ensure CuPy is imported
 
 class ProcessingController:
     """
@@ -107,7 +106,7 @@ class ProcessingController:
             
             # Create masks for each detected peak
             peak_masks = [self.mask_generator.create_circular_mask(
-                self.fft_processor.fft_shape,
+                shape=im_fft_shifted.shape,  # Updated from 'self.fft_processor.fft_shape'
                 center=tuple(coord),
                 radius=mask_radius,
                 falloff=peak_mask_falloff
@@ -194,9 +193,9 @@ class ProcessingController:
         padding_value = 128.0  # Neutral gray value
         padded_image = cp.pad(
             image,
-            pad_width=self.fft_processor.padding_size,
-            mode="constant",
-            constant_values=padding_value,
+            pad_width=self.fft_processor.padding_size,  # Using CuPy's pad
+            mode='constant',
+            constant_values=padding_value
         )
         return padded_image
     

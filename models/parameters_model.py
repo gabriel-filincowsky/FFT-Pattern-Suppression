@@ -44,3 +44,20 @@ class ParametersModel:
         """
         self.parameters = reset_to_defaults()
         self.save_parameters()
+
+    def __init__(self):
+        # ... existing initialization code ...
+        self.parameters = {
+            'padding_size': 16,
+            # ... other parameters ...
+        }
+    
+    def set_parameter(self, key, value):
+        self.parameters[key] = value
+    
+    def get_parameter(self, key, default=None):
+        return self.parameters.get(key, default)
+    
+    def save_parameters(self):
+        # ... existing code to save parameters ...
+        pass

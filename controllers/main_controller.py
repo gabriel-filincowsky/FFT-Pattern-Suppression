@@ -19,14 +19,17 @@ class MainController:
         self.image_model = ImageModel()
         self.parameters_model = ParametersModel()
         
-        # Initialize Processing Modules
-        self.fft_processor = FFTProcessor()
+        # Initialize Processing Modules with padding_size from parameters_model
+        padding_size = self.parameters_model.get_parameter('padding_size', default=16)
+        self.fft_processor = FFTProcessor(padding_size=padding_size)
         self.mask_generator = MaskGenerator()
         
         # Initialize Sub-controllers
-        self.image_controller = ImageController(self.image_model, self.parameters_model)
         self.processing_controller = ProcessingController(
             self.image_model, self.parameters_model, self.fft_processor, self.mask_generator
+        )
+        self.image_controller = ImageController(
+            self.image_model, self.parameters_model, self.processing_controller
         )
         
         # Initialize Main Window
@@ -41,7 +44,7 @@ class MainController:
         success = self.image_controller.load_image_from_file(file_path)
         if success:
             self.logger.info(f"Image loaded successfully from {file_path}")
-            self.update_view()
+            self.update_image()  # Use update_image instead of update_view
         else:
             self.logger.error(f"Failed to load image from {file_path}")
             QMessageBox.warning(self.view, "Load Image", "Failed to load the selected image.")

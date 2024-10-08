@@ -28,6 +28,39 @@ class Phase1View(QWidget):
         # Label to show current slider value
         self.high_pass_label = QLabel("High-Pass Filter Radius: 10")
 
+        # Padding Size Slider and SpinBox
+        padding_layout = QtWidgets.QHBoxLayout()
+        info_button = self.create_info_icon("Adjusts the padding size applied during FFT processing.")
+        lbl = QtWidgets.QLabel("Padding Size")
+
+        # Slider
+        sld = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        sld.setMinimum(0)
+        sld.setMaximum(100)
+        sld.setValue(16)  # Default padding size
+        sld.valueChanged.connect(lambda value: self.controller.update_parameters("padding_size", value))
+        sld.setObjectName("Padding Size")
+        sld.installEventFilter(self)
+
+        # SpinBox
+        val_input = QtWidgets.QSpinBox()
+        val_input.setMinimum(0)
+        val_input.setMaximum(100)
+        val_input.setValue(16)
+        val_input.valueChanged.connect(lambda value: self.controller.update_parameters("padding_size", value))
+
+        # Store widgets if necessary
+        self.sliders_widgets["Padding Size"] = sld
+        self.slider_values["Padding Size"] = val_input
+        self.sliders["Padding Size"] = (sld, 0, 100)
+
+        # Add to layout
+        padding_layout.addWidget(info_button)
+        padding_layout.addWidget(lbl)
+        padding_layout.addWidget(sld)
+        padding_layout.addWidget(val_input)
+        layout.addLayout(padding_layout)
+
         # Add widgets to layout
         layout.addWidget(self.high_pass_label)
         layout.addWidget(self.high_pass_slider)
