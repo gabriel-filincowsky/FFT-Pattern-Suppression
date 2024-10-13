@@ -45,19 +45,39 @@ class ParametersModel:
         self.parameters = reset_to_defaults()
         self.save_parameters()
 
+    def get_all_parameters(self):
+        """
+        Retrieve a copy of all parameters.
+        
+        :return: A copy of the parameters dictionary.
+        """
+        return self.parameters.copy()
+
     def __init__(self):
-        # ... existing initialization code ...
+        # Initialize parameters dictionary with default values
         self.parameters = {
-            'padding_size': 16,
-            # ... other parameters ...
+            'High-Pass Filter Radius': 1.0,
+            'Gaussian Blur (%)': 0.0,
+            'Gamma Correction': 1.0,
+            'Enable Frequency Peak Suppression': False,
+            'Exclude Radius (%)': 10.0,
+            'Aspect Ratio': 1.0,
+            'Orientation': 0.0,
+            'Exclude Falloff (%)': 10.0,
+            'Peak Min Distance': 10,
+            'Peak Threshold': 0.5,
+            'Mask Radius (%)': 5.0,
+            'Peak Mask Falloff (%)': 10.0,
+            'Enable Attenuation': False,
+            'Enable Anti-Aliasing Filter': False,
+            'Anti-Aliasing Intensity (%)': 50.0,
+            # Add other parameters as needed
         }
-    
-    def set_parameter(self, key, value):
-        self.parameters[key] = value
-    
-    def get_parameter(self, key, default=None):
-        return self.parameters.get(key, default)
-    
-    def save_parameters(self):
-        # ... existing code to save parameters ...
-        pass
+
+    def set_parameter(self, param_name, param_value):
+        """Set the value of a parameter."""
+        self.parameters[param_name] = param_value
+
+    def get_parameters(self):
+        """Return a copy of current parameters."""
+        return self.parameters.copy()

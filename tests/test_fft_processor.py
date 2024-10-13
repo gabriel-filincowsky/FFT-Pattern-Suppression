@@ -5,7 +5,7 @@ import numpy as np
 
 class TestFFTProcessor(unittest.TestCase):
     def setUp(self):
-        self.processor = FFTProcessor()
+        self.processor = FFTProcessor(padding_size=16)
         # Initialize test_image as a CuPy array
         self.test_image = cp.random.rand(256, 256).astype(cp.float32) * 255
 
@@ -24,6 +24,53 @@ class TestFFTProcessor(unittest.TestCase):
         self.assertIsInstance(highpass, cp.ndarray)
         self.assertEqual(highpass.shape, self.test_image.shape)
         self.assertTrue(cp.all((highpass >= 0) & (highpass <= 255)))
+
+    def test_pad_to_power_of_two_even_dimensions(self):
+        image = cp.ones((64, 64))
+        padded_image, extra_padding = self.processor.pad_to_power_of_two(image)
+        self.assertEqual(padded_image.shape, (64, 64))
+        self.assertEqual(extra_padding, (0, 0))
+
+    def test_pad_to_power_of_two_odd_dimensions(self):
+        image = cp.ones((63, 64))
+        padded_image, extra_padding = self.processor.pad_to_power_of_two(image)
+        self.assertEqual(padded_image.shape, (64, 64))
+        self.assertEqual(extra_padding, (1, 0))
+
+        image = cp.ones((64, 63))
+        padded_image, extra_padding = self.processor.pad_to_power_of_two(image)
+        self.assertEqual(padded_image.shape, (64, 64))
+        self.assertEqual(extra_padding, (0, 1))
+
+        image = cp.ones((63, 63))
+        padded_image, extra_padding = self.processor.pad_to_power_of_two(image)
+        self.assertEqual(padded_image.shape, (64, 64))
+        self.assertEqual(extra_padding, (1, 1))
+
+    def test_crop_padding(self):
+        image = cp.ones((64, 64))
+        original_shape = (64, 64)
+        extra_padding = (0, 0)
+        cropped_image = self.processor.crop_padding(image, original_shape, extra_padding)
+        self.assertEqual(cropped_image.shape, original_shape)
+
+        image = cp.ones((65, 64))
+        original_shape = (64, 64)
+        extra_padding = (1, 0)
+        cropped_image = self.processor.crop_padding(image, original_shape, extra_padding)
+        self.assertEqual(cropped_image.shape, original_shape)
+
+        image = cp.ones((64, 65))
+        original_shape = (64, 64)
+        extra_padding = (0, 1)
+        cropped_image = self.processor.crop_padding(image, original_shape, extra_padding)
+        self.assertEqual(cropped_image.shape, original_shape)
+
+        image = cp.ones((65, 65))
+        original_shape = (64, 64)
+        extra_padding = (1, 1)
+        cropped_image = self.processor.crop_padding(image, original_shape, extra_padding)
+        self.assertEqual(cropped_image.shape, original_shape)
 
 if __name__ == '__main__':
     unittest.main()

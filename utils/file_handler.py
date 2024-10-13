@@ -6,22 +6,24 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 def load_image(file_path: str) -> cp.ndarray:
     """
-    Load an image from the specified file path.
-
+    Load an image from the specified file path efficiently.
+    
     :param file_path: Path to the image file.
-    :return: Image as a CuPy array in BGR format, or None if loading fails.
+    :return: Image as a CuPy array in RGB format, or None if loading fails.
     """
-    if not os.path.exists(file_path):
-        QMessageBox.warning(None, "Load Image", f"The file {file_path} does not exist.")
-        return None
+    if isinstance(file_path, tuple):
+        file_path = file_path[0]
+    if not isinstance(file_path, (str, os.PathLike)):
+        raise TypeError(f"Expected 'file_path' to be a string or path-like object, got {type(file_path)} instead.")
 
+    # Load image in BGR format
     image_np = cv2.imread(file_path, cv2.IMREAD_COLOR)
     if image_np is None:
-        QMessageBox.warning(None, "Load Image", f"Failed to load the image from {file_path}.")
-        return None
+        raise ValueError(f"Failed to load image from {file_path}. Please check the file path and try again.")
 
-    # Convert to CuPy array
-    image_cp = cp.asarray(image_np)
+    # Convert to RGB format and transfer to GPU memory
+    image_rgb = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
+    image_cp = cp.asarray(image_rgb, dtype=cp.float32)
     return image_cp
 
 def save_image(image: cp.ndarray, save_path: str) -> bool:

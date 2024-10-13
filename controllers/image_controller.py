@@ -1,35 +1,56 @@
 from utils.file_handler import load_image, save_image, select_input_directory, select_output_directory
 from models.image_model import ImageModel
-from models.parameters_model import ParametersModel
+from utils.config_manager import ConfigManager
 from PyQt5.QtWidgets import QProgressDialog, QMessageBox
+from PyQt5.QtCore import Qt, pyqtSignal, QObject
 import os
 import logging
 from controllers.processing_controller import ProcessingController
+from concurrent.futures import ThreadPoolExecutor
 
-class ImageController:
+class ImageController(QObject):
     """
     Controller for managing image loading, saving, and batch processing.
     """
-    def __init__(self, image_model: ImageModel, parameters_model: ParametersModel, processing_controller: ProcessingController):
+    # Define a signal to notify when an image is loaded
+    image_loaded = pyqtSignal(bool)  # Emits True on success, False on failure
+
+    def __init__(self, image_model: ImageModel, config_manager: ConfigManager, processing_controller: ProcessingController):
+        super().__init__()
+        self.config_manager = config_manager
         self.image_model = image_model
-        self.parameters_model = parameters_model
         self.processing_controller = processing_controller
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.executor = ThreadPoolExecutor(max_workers=4)  # Adjust based on GPU capabilities
+
+    def load_image_from_file_async(self, file_path: str) -> None:
+        """Asynchronously load an image and update the model."""
+        def task():
+            try:
+                image = load_image(file_path)
+                self.image_model.set_original_image(image)
+                self.logger.info(f"Loaded image from {file_path}")
+                self.image_loaded.emit(True)  # Emit success
+            except Exception as e:
+                self.logger.error(f"Failed to load image from {file_path}: {e}")
+                QMessageBox.warning(None, "Load Error", f"Failed to load image from {file_path}\nError: {e}")
+                self.image_loaded.emit(False)  # Emit failure
+
+        self.executor.submit(task)
 
     def load_image_from_file(self, file_path: str) -> bool:
         """
-        Load a single image and update the model.
-
+        Initiate asynchronous loading of an image.
+        
         :param file_path: Path to the image file.
-        :return: True if successful, False otherwise.
+        :return: True if loading is initiated, False otherwise.
         """
-        image = load_image(file_path)
-        if image is not None:
-            self.image_model.set_original_image(image)
-            self.logger.info(f"Loaded image from {file_path}")
+        if file_path:
+            self.load_image_from_file_async(file_path)
             return True
-        self.logger.error(f"Failed to load image from {file_path}")
-        return False
+        else:
+            self.logger.warning("No file selected to load.")
+            return False
 
     def save_processed_image(self, save_path: str) -> bool:
         """
@@ -62,12 +83,43 @@ class ImageController:
         """
         return select_output_directory()
 
+    def batch_process_images_async(self, input_dir: str, output_dir: str, progress_dialog: QProgressDialog) -> None:
+        """Asynchronously batch process images."""
+        def task(file_name):
+            try:
+                file_path = os.path.join(input_dir, file_name)
+                image = load_image(file_path)
+                self.image_model.set_original_image(image)
+                self.processing_controller.process_image(current_tab="Phase 2")
+                save_path = os.path.join(output_dir, file_name)
+                save_image(self.image_model.processed_image, save_path)
+                self.logger.info(f"Processed and saved image: {file_name}")
+            except Exception as e:
+                self.logger.error(f"Error processing {file_name}: {e}")
+
+        image_files = [f for f in os.listdir(input_dir) if self.is_image_file(f)]
+        total_files = len(image_files)
+        if total_files == 0:
+            QMessageBox.warning(None, "Batch Processing", "No image files found in the input directory.")
+            return
+
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            futures = []
+            for i, file_name in enumerate(image_files, start=1):
+                if progress_dialog.wasCanceled():
+                    self.logger.info("Batch processing was canceled by the user.")
+                    break
+                futures.append(executor.submit(task, file_name))
+                progress_dialog.setValue(i)
+            for future in futures:
+                future.result()  # To catch exceptions if any
+
+        progress_dialog.setValue(len(image_files))
+        QMessageBox.information(None, "Batch Processing", "Batch processing completed successfully.")
+
     def batch_process_images(self, input_dir: str, output_dir: str) -> None:
         """
-        Batch process images from input directory and save to output directory.
-
-        :param input_dir: Directory containing input images.
-        :param output_dir: Directory to save processed images.
+        Batch process images from input directory and save to output directory asynchronously.
         """
         if not os.path.exists(input_dir):
             QMessageBox.warning(None, "Batch Processing", f"Input directory {input_dir} does not exist.")
@@ -85,29 +137,10 @@ class ImageController:
         progress = QProgressDialog("Processing images...", "Cancel", 0, total_files)
         progress.setWindowTitle("Batch Processing")
         progress.setWindowModality(Qt.WindowModal)
+        progress.show()
 
-        for i, file_name in enumerate(image_files, start=1):
-            if progress.wasCanceled():
-                self.logger.info("Batch processing was canceled by the user.")
-                break
-            file_path = os.path.join(input_dir, file_name)
-            self.logger.info(f"Processing image: {file_path}")
-            success = self.load_image_from_file(file_path)
-            if success:
-                self.processing_controller.process_image()
-                save_path = os.path.join(output_dir, file_name)
-                self.save_processed_image(save_path)
-            progress.setValue(i)
-
-        progress.setValue(total_files)
-        QMessageBox.information(None, "Batch Processing", "Batch processing completed successfully.")
+        self.batch_process_images_async(input_dir, output_dir, progress)
 
     def is_image_file(self, filename: str) -> bool:
-        """
-        Check if a file is an image based on its extension.
-
-        :param filename: Name of the file.
-        :return: True if it's an image file, False otherwise.
-        """
-        valid_extensions = ('.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif')
-        return filename.lower().endswith(valid_extensions)
+        """Check if a file is a supported image format."""
+        return filename.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"))

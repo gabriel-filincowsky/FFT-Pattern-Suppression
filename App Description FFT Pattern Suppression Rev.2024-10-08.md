@@ -233,10 +233,12 @@ The application offers a comprehensive set of parameters that users can adjust t
 The application now features a modular architecture that separates concerns into distinct components, enhancing code readability, maintainability, and extensibility.
 
 - **Modular Structure:**
-    - `data_processing`: Handles data loading and preprocessing.
-    - `fft`: Contains the core FFT processing and pattern suppression logic.
-    - `visualization`: Manages plotting and visualization of results.
+    - `controllers`: Manages the application's control flow and user interactions.
+    - `models`: Handles data representations and business logic.
+    - `views`: Manages the graphical user interface and visualization components.
+    - `processing`: Contains the core FFT processing and pattern suppression logic.
     - `utils`: Provides utility functions and configuration management.
+    - `main.py`: Serves as the entry point for the application.
 
 For a comprehensive overview of the modular structure, please refer to the [MODULARIZATION.md](docs/MODULARIZATION.md) file.
 

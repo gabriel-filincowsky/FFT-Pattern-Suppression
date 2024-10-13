@@ -1,13 +1,16 @@
 import cupy as cp
 import numpy as np
-from utils.cupy_handler import cp_gaussian_filter
+from utils.cupy_handler import cp_fft, cp_gaussian_filter
 
 class MaskGenerator:
     """
     Generates various masks used in FFT processing.
     """
 
-    def create_circular_mask(self, shape, center, radius, falloff=0):
+    def __init__(self):
+        pass
+
+    def create_circular_mask(self, shape: tuple, center: tuple, radius: float, falloff: float = 0.0) -> cp.ndarray:
         """
         Create a circular mask with a falloff.
 
@@ -18,14 +21,19 @@ class MaskGenerator:
         :return: CuPy array representing the circular mask
         """
         Y, X = cp.ogrid[:shape[0], :shape[1]]
-        dist_from_center = cp.sqrt((Y - center[0])**2 + (X - center[1])**2)
-        mask = cp.where(dist_from_center <= radius, 1, 0)
+        dist_from_center = cp.sqrt((X - center[1])**2 + (Y - center[0])**2)
+        mask = cp.ones(shape, dtype=cp.float32)
         if falloff > 0:
-            falloff_region = cp.logical_and(dist_from_center > radius, dist_from_center <= radius + falloff)
-            mask = cp.where(falloff_region, 1 - (dist_from_center - radius) / falloff, mask)
+            mask[dist_from_center <= radius] = 0
+            mask[(dist_from_center > radius) & (dist_from_center <= radius + falloff)] = (
+                (radius + falloff - dist_from_center[(dist_from_center > radius) & (dist_from_center <= radius + falloff)]) / falloff
+            )
+        else:
+            mask[dist_from_center <= radius] = 0
         return mask
 
-    def create_exclusion_mask(self, shape, center, radius, aspect_ratio=1.0, orientation=0, falloff=0):
+    def create_exclusion_mask(self, shape: tuple, center: tuple, radius: float, aspect_ratio: float = 1.0,
+                              orientation: float = 0.0, falloff: float = 0.0) -> cp.ndarray:
         """
         Create an exclusion mask based on aspect ratio and orientation.
 
@@ -40,19 +48,20 @@ class MaskGenerator:
         Y, X = cp.ogrid[:shape[0], :shape[1]]
         y, x = center
         theta = cp.deg2rad(orientation)
-        a = radius
-        b = radius / aspect_ratio
-        cos_theta = cp.cos(theta)
-        sin_theta = cp.sin(theta)
-        expr = (( (Y - y) * cos_theta + (X - x) * sin_theta )**2) / a**2 + \
-               (( (Y - y) * sin_theta - (X - x) * cos_theta )**2) / b**2
-        mask = cp.where(expr <= 1, 0, 1)
+        X_rot = (X - x) * cp.cos(theta) + (Y - y) * cp.sin(theta)
+        Y_rot = -(X - x) * cp.sin(theta) + (Y - y) * cp.cos(theta)
+        ellipse = (X_rot / (radius * aspect_ratio))**2 + (Y_rot / radius)**2
+        mask = cp.ones(shape, dtype=cp.float32)
         if falloff > 0:
-            falloff_region = cp.logical_and(expr > 1, expr <= 1 + falloff)
-            mask = cp.where(falloff_region, 1 - (expr - 1) / falloff, mask)
+            mask[ellipse <= 1] = 0
+            mask[(ellipse > 1) & (ellipse <= 1 + falloff / radius)] = (
+                (1 + falloff / radius - ellipse[(ellipse > 1) & (ellipse <= 1 + falloff / radius)]) / (falloff / radius)
+            )
+        else:
+            mask[ellipse <= 1] = 0
         return mask
 
-    def create_antialiasing_mask(self, shape, intensity_pct):
+    def create_antialiasing_mask(self, shape: tuple, intensity_pct: float) -> cp.ndarray:
         """
         Create an anti-aliasing mask to smooth high-frequency components.
 
@@ -61,9 +70,7 @@ class MaskGenerator:
         :return: CuPy array representing the anti-aliasing mask
         """
         Y, X = cp.ogrid[:shape[0], :shape[1]]
-        center_y, center_x = shape[0] // 2, shape[1] // 2
-        distance = cp.sqrt((Y - center_y)**2 + (X - center_x)**2)
-        max_distance = cp.max(distance)
-        intensity = intensity_pct / 100.0
-        mask = 1 - cp.clip(distance / (max_distance * intensity), 0, 1)
+        crow, ccol = shape[0] // 2, shape[1] // 2
+        radius = (intensity_pct / 100) * min(crow, ccol)
+        mask = 1 - cp.exp(-((Y - crow)**2 + (X - ccol)**2) / (2 * (radius**2)))
         return mask

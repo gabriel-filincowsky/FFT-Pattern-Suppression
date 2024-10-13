@@ -26,33 +26,35 @@ By breaking down the application into distinct modules with clear responsibiliti
 ## Modular Structure
 
 The modularized FFT Pattern Suppression application is organized into the following directory structure:
+
 ```bash
 fft_image_processing_app/
 ├── controllers/
-│ ├── init.py
-│ ├── image_controller.py
-│ ├── main_controller.py
-│ └── processing_controller.py
+│   ├── __init__.py
+│   ├── image_controller.py
+│   ├── main_controller.py
+│   └── processing_controller.py
 ├── models/
-│ ├── init.py
-│ ├── image_model.py
-│ └── parameters_model.py
+│   ├── __init__.py
+│   ├── image_model.py
+│   └── parameters_model.py
 ├── views/
-│ ├── init.py
-│ ├── main_window.py
-│ ├── phase1_view.py
-│ └── phase2_view.py
+│   ├── __init__.py
+│   ├── main_window.py
+│   ├── phase1_view.py
+│   └── phase2_view.py
 ├── processing/
-│ ├── init.py
-│ ├── fft_processor.py
-│ ├── mask_generator.py
-│ └── utils.py
+│   ├── __init__.py
+│   ├── fft_processor.py
+│   ├── mask_generator.py
+│   └── utils.py
 ├── utils/
-│ ├── init.py
-│ └── file_handler.py
+│   ├── __init__.py
+│   ├── file_handler.py
+│   └── config_manager.py
 ├── tests/
-│ ├── init.py
-│ └── test_fft_processor.py
+│   ├── __init__.py
+│   └── test_fft_processor.py
 ├── main.py
 ├── requirements.txt
 ├── requirements_cpu.txt
@@ -66,89 +68,159 @@ fft_image_processing_app/
 
 This structure organizes the application into logical modules, each with a specific responsibility:
 
-1. `data_processing`: Handles data loading and preprocessing
-2. `fft`: Contains the core FFT processing and pattern suppression logic
-3. `visualization`: Manages the plotting and visualization of results
-4. `utils`: Provides utility functions and configuration management
-5. `main.py`: Serves as the entry point for the application
+1. `controllers`: Manages the application's control flow and user interactions.
+2. `models`: Handles data representations and business logic.
+3. `views`: Manages the graphical user interface and visualization components.
+4. `processing`: Contains the core FFT processing and pattern suppression logic.
+5. `utils`: Provides utility functions and configuration management.
+6. `main.py`: Serves as the entry point for the application.
 
 ## Component Descriptions
 
-### 1. Data Processing Module
+### 1. Controllers Module
 
-The `data_processing` module is responsible for loading and preprocessing the input data. It consists of two main components:
+The `controllers` module is responsible for managing the application's control flow and handling user interactions. It consists of three main components:
 
-#### a. data_loader.py
+#### a. image_controller.py
 
-This module handles the loading of data from various sources (e.g., CSV files, databases). It provides a clean interface for reading and parsing input data.
-
-Key functions:
-- `load_csv(file_path: str) -> pd.DataFrame`: Loads data from a CSV file
-- `load_from_database(connection_string: str, query: str) -> pd.DataFrame`: Loads data from a database
-
-#### b. data_preprocessor.py
-
-This module is responsible for cleaning and preparing the data for FFT processing. It handles tasks such as normalization, handling missing values, and data type conversions.
+This module manages image loading, saving, and basic image operations.
 
 Key functions:
-- `normalize_data(data: pd.DataFrame) -> pd.DataFrame`: Normalizes the input data
-- `handle_missing_values(data: pd.DataFrame) -> pd.DataFrame`: Deals with missing or invalid data points
-- `prepare_for_fft(data: pd.DataFrame) -> np.ndarray`: Converts the preprocessed data into a format suitable for FFT processing
+- `load_image(file_path: str) -> Image`: Loads an image from the specified file path.
+- `save_image(image: Image, file_path: str) -> None`: Saves the processed image to the specified file path.
 
-### 2. FFT Module
+#### b. main_controller.py
 
-The `fft` module contains the core logic for FFT processing and pattern suppression. It is divided into two main components:
+This module orchestrates the overall workflow of the application, coordinating between different modules to perform FFT processing and pattern suppression.
+
+Key functions:
+- `initialize_application() -> None`: Sets up the application environment.
+- `start_processing() -> None`: Initiates the FFT pattern suppression process.
+
+#### c. processing_controller.py
+
+This module handles the coordination of data processing and FFT operations.
+
+Key functions:
+- `process_data(data: pd.DataFrame) -> np.ndarray`: Preprocesses input data for FFT.
+- `execute_fft(signal: np.ndarray) -> np.ndarray`: Executes FFT on the preprocessed signal.
+
+### 2. Processing Module
+
+The `processing` module contains the core FFT processing and pattern suppression logic. It is divided into two main components:
 
 #### a. fft_processor.py
 
 This module handles the Fast Fourier Transform calculations and related operations.
 
 Key functions:
-- `compute_fft(signal: np.ndarray) -> np.ndarray`: Computes the FFT of the input signal
-- `compute_inverse_fft(fft_result: np.ndarray) -> np.ndarray`: Computes the inverse FFT
-- `apply_frequency_filter(fft_result: np.ndarray, filter_func: Callable) -> np.ndarray`: Applies a frequency domain filter to the FFT result
+- `compute_fft(signal: np.ndarray) -> np.ndarray`: Computes the FFT of the input signal.
+- `compute_inverse_fft(fft_result: np.ndarray) -> np.ndarray`: Computes the inverse FFT.
+- `apply_frequency_filter(fft_result: np.ndarray, filter_func: Callable) -> np.ndarray`: Applies a frequency domain filter to the FFT result.
 
-#### b. pattern_suppressor.py
+#### b. mask_generator.py
 
-This module implements the pattern suppression algorithm, identifying and removing unwanted patterns in the frequency domain.
-
-Key functions:
-- `identify_patterns(fft_result: np.ndarray) -> List[Dict]`: Identifies patterns in the FFT result
-- `suppress_patterns(fft_result: np.ndarray, patterns: List[Dict]) -> np.ndarray`: Suppresses identified patterns
-- `apply_suppression(signal: np.ndarray) -> np.ndarray`: Applies the complete pattern suppression process to a signal
-
-### 3. Visualization Module
-
-The `visualization` module is responsible for creating plots and visual representations of the data and results.
-
-#### plotter.py
-
-This module provides functions for generating various types of plots to visualize the original signal, FFT results, and suppressed signal.
+This module generates masks for suppressing unwanted frequency patterns.
 
 Key functions:
-- `plot_time_domain(signal: np.ndarray, title: str) -> None`: Plots the time domain representation of a signal
-- `plot_frequency_domain(fft_result: np.ndarray, title: str) -> None`: Plots the frequency domain representation of an FFT result
-- `plot_comparison(original: np.ndarray, processed: np.ndarray, title: str) -> None`: Creates a comparison plot of original and processed signals
+- `create_mask(patterns: List[Dict]) -> np.ndarray`: Creates a mask based on identified patterns.
+- `apply_mask(fft_result: np.ndarray, mask: np.ndarray) -> np.ndarray`: Applies the generated mask to the FFT result.
+
+#### c. utils.py
+
+This module provides utility functions specific to the processing tasks.
+
+Key functions:
+- `normalize_fft(fft_result: np.ndarray) -> np.ndarray`: Normalizes the FFT result.
+- `detect_peaks(fft_result: np.ndarray) -> List[Dict]`: Detects peaks in the FFT spectrum.
+
+### 3. Views Module
+
+This module provides the user interface and visualization capabilities for the application.
+
+#### main_window.py
+
+This file contains the main window class, which handles the display of images and user interactions.
+
+Key functions:
+- `update_image_display()`: Updates the processed image displayed in the UI.
+- `batch_process()`: Handles batch processing of images.
+
+#### phase1_view.py & phase2_view.py
+
+These files manage the specific views for different phases of the image processing workflow.
+
+Key functions:
+- `display_phase1_results()`: Displays results for Phase 1 processing.
+- `display_phase2_results()`: Displays results for Phase 2 processing.
 
 ### 4. Utils Module
 
 The `utils` module contains utility functions and configuration management for the application.
 
-#### a. config.py
+#### a. config_manager.py
 
-This module manages the application's configuration, including default parameters and settings.
+This module manages the application's configuration, including user-configurable parameters and their validation.
 
-Key components:
-- `Config` class: Stores and manages configuration parameters
-- `load_config(file_path: str) -> Config`: Loads configuration from a file
+- **Key Components:**
+  - **`ConfigManager` Class:** Handles loading, saving, and accessing configuration parameters.
+  - **`DEFAULT_CONFIG_PATH`:** Path to the default configuration JSON file (`config/default_parameters.json`).
+  - **`VALIDATION_RULES` Dictionary:** Defines expected types, minimum, and maximum values for parameters to ensure data integrity.
+  - **Validation:** The `validate_config` method ensures that all parameters meet their defined constraints before being loaded into the application.
 
-#### b. helpers.py
+**Configuration Parameters:**
 
-This module provides various helper functions used throughout the application.
+| Parameter                      | Type    | Description                            | Units       | Constraints                      |
+|--------------------------------|---------|----------------------------------------|-------------|----------------------------------|
+| High-Pass Filter Radius        | float   | Radius of the high-pass filter         | pixels      | min: 0.1, max: 25.0, precision: 1 |
+| Gaussian Blur (%)              | float   | Percentage of Gaussian blur applied    | percent     | min: 0.1, max: 100.0, precision: 1 |
+| Peak Min Distance              | int     | Minimum distance between peaks         | pixels      | min: 1, max: N/A                  |
+| Peak Threshold                 | float   | Threshold for peak detection           | unitless    | min: 0.0001, max: 1.0             |
+| Radius (%)                     | float   | Radius percentage                      | percent     | min: N/A, max: N/A, precision: N/A |
+| Aspect Ratio                   | float   | Aspect ratio for processing            | unitless    | min: N/A, max: N/A, precision: N/A |
+| Orientation                    | float   | Orientation angle                      | degrees     | min: N/A, max: N/A, precision: N/A |
+| Falloff (%)                    | float   | Falloff percentage                     | percent     | min: N/A, max: N/A, precision: N/A |
+| Mask Radius (%)                | float   | Radius percentage for masking          | percent     | min: N/A, max: N/A, precision: N/A |
+| Peak Mask Falloff (%)          | float   | Falloff percentage for peak masking    | percent     | min: N/A, max: N/A, precision: N/A |
+| Gamma Correction               | float   | Gamma correction factor                | unitless    | min: N/A, max: N/A, precision: N/A |
+| Anti-Aliasing Intensity (%)    | float   | Intensity of anti-aliasing filter      | percent     | min: N/A, max: N/A, precision: N/A |
+| Enable Frequency Peak Suppression | bool | Toggle frequency peak suppression      | boolean     | True/False                        |
+| Enable Attenuation             | bool    | Toggle attenuation                     | boolean     | True/False                        |
+| Enable Anti-Aliasing Filter    | bool    | Toggle anti-aliasing filter            | boolean     | True/False                        |
 
-Key functions:
-- `validate_input(data: np.ndarray) -> bool`: Validates input data
-- `save_results(results: Dict, file_path: str) -> None`: Saves processing results to a file
+**Usage Example:**
+
+```python
+from utils.config_manager import ConfigManager
+
+config_manager = ConfigManager()
+highpass_radius = config_manager.get_parameter("High-Pass Filter Radius")
+config_manager.set_parameter("Gaussian Blur (%)", 1.2)
+```
+
+#### b. constants.py
+
+This module defines constant values used throughout the application. These constants are not user-configurable and represent intrinsic properties or limits of the system.
+
+**Key Constants:**
+- `PADDING_SIZE`: Number of pixels to pad on each side of the image (16 pixels)
+- `MAX_HIGH_PASS_RADIUS`: Maximum allowed high-pass filter radius (25.0 pixels)
+- `MIN_HIGH_PASS_RADIUS`: Minimum allowed high-pass filter radius (0.1 pixels)
+- `MAX_GAUSSIAN_BLUR_PCT`: Maximum allowed Gaussian blur percentage (100.0%)
+- `MIN_GAUSSIAN_BLUR_PCT`: Minimum allowed Gaussian blur percentage (0.1%)
+- `MAX_PEAK_THRESHOLD`: Maximum allowed peak threshold value (1.0)
+- `MIN_PEAK_THRESHOLD`: Minimum allowed peak threshold value (0.0001)
+
+**Usage Example:**
+
+```python
+from utils.constants import PADDING_SIZE, MAX_HIGH_PASS_RADIUS
+
+# Use constants in your code
+padded_image = pad_image(original_image, PADDING_SIZE)
+if radius > MAX_HIGH_PASS_RADIUS:
+    raise ValueError(f"High-pass filter radius cannot exceed {MAX_HIGH_PASS_RADIUS} pixels")
+```
 
 ### 5. Main Application (main.py)
 
@@ -164,14 +236,14 @@ Key responsibilities:
 
 The modularized application follows a clear data flow:
 
-1. The main application loads the configuration and parses user inputs.
-2. Data is loaded using the `data_processing.data_loader` module.
-3. The loaded data is preprocessed using `data_processing.data_preprocessor`.
-4. The preprocessed data is passed to the `fft.fft_processor` for FFT computation.
-5. The FFT results are then processed by the `fft.pattern_suppressor` to identify and suppress patterns.
-6. The suppressed FFT result is converted back to the time domain.
-7. Throughout the process, the `visualization.plotter` module is used to generate plots of the original signal, FFT results, and suppressed signal.
-8. The `utils.helpers` module provides utility functions used by various components.
+1. The main application initializes and loads the configuration using the `controllers.main_controller` module.
+2. User inputs are handled by the `controllers.image_controller` module.
+3. Data is loaded and managed using the `controllers.processing_controller` module.
+4. The loaded data is preprocessed and passed to the `processing.fft_processor` for FFT computation.
+5. The FFT results are then processed by the `processing.mask_generator` to identify and suppress patterns.
+6. Suppressed FFT results are converted back to the spatial domain.
+7. Throughout the process, the `views` module is used to generate plots and update the user interface.
+8. The `utils.config_manager` module provides configuration management utilized by various components.
 
 This modular structure allows for clear separation of concerns and enables easy modification or replacement of individual components without affecting the entire system.
 

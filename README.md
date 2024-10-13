@@ -96,30 +96,31 @@ Please refer to the [Installation Guide](INSTALLATION.md) for installation instr
 ```bash
 fft_image_processing_app/
 ├── controllers/
-│ ├── init.py
-│ ├── image_controller.py
-│ ├── main_controller.py
-│ └── processing_controller.py
+│   ├── __init__.py
+│   ├── image_controller.py
+│   ├── main_controller.py
+│   └── processing_controller.py
 ├── models/
-│ ├── init.py
-│ ├── image_model.py
-│ └── parameters_model.py
+│   ├── __init__.py
+│   ├── image_model.py
+│   └── parameters_model.py
 ├── views/
-│ ├── init.py
-│ ├── main_window.py
-│ ├── phase1_view.py
-│ └── phase2_view.py
+│   ├── __init__.py
+│   ├── main_window.py
+│   ├── phase1_view.py
+│   └── phase2_view.py
 ├── processing/
-│ ├── init.py
-│ ├── fft_processor.py
-│ ├── mask_generator.py
-│ └── utils.py
+│   ├── __init__.py
+│   ├── fft_processor.py
+│   ├── mask_generator.py
+│   └── utils.py
 ├── utils/
-│ ├── init.py
-│ └── file_handler.py
+│   ├── __init__.py
+│   ├── file_handler.py
+│   └── config_manager.py
 ├── tests/
-│ ├── init.py
-│ └── test_fft_processor.py
+│   ├── __init__.py
+│   └── test_fft_processor.py
 ├── main.py
 ├── requirements.txt
 ├── requirements_cpu.txt
